@@ -42,4 +42,12 @@ public class MarketDataProcessorTest {
         count = processor.publishAggregatedMarketData(data);
         Assertions.assertEquals(6, count);
     }
+
+    @Test
+    public void testCanPublishNothing() throws Exception {
+        MarketDataProcessor processor = new MarketDataProcessor();
+        MarketData data = new MarketData();
+        data.setSymbol("ABC");
+        Assertions.assertEquals(0, processor.publishAggregatedMarketData(data));
+    }
 }

@@ -8,7 +8,7 @@ class RateLimiter<V>  {
     private final Queue<Long> timestamps = new LinkedList<>();
     private final int maxJobCount;
     private final long timeFrame;
-    private final ExecutorService executors = Executors.newFixedThreadPool(5);
+    private final ExecutorService executor = Executors.newFixedThreadPool(5);
     public RateLimiter(int maxJobCount, long timeFrame) {
         this.maxJobCount = maxJobCount;
         this.timeFrame = timeFrame;
@@ -23,6 +23,11 @@ class RateLimiter<V>  {
             }
         }
         timestamps.add(System.currentTimeMillis());
-        return executors.submit(task);
+        return executor.submit(task);
+    }
+
+    public void await() throws InterruptedException {
+        executor.shutdown();
+        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
     }
 }
