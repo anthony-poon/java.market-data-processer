@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 
 class RateLimiterTest {
     @Test
@@ -13,7 +12,7 @@ class RateLimiterTest {
         int timeFrame = 1;
         int maxJobCount = 1;
         RateLimiter<Boolean> limiter = new RateLimiter<>(maxJobCount, timeFrame);
-        Assertions.assertTrue(limiter.queue(() -> true));
+        Assertions.assertTrue(limiter.queue(() -> true).get());
     }
 
     @Test

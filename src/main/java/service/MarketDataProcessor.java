@@ -3,34 +3,35 @@ package service;
 import model.MarketData;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.*;
 import java.util.logging.Logger;
 
 class DataAggregator {
-    private final Lock lock = new ReentrantLock();
+    private final Logger logger = Logger.getLogger(DataAggregator.class.getName());
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final Lock writeLock = lock.writeLock();
+    private final Lock readLock = lock.readLock();
     private int count;
     private final RateLimiter<Void> rateLimiter = new RateLimiter<>(1, 1000);
     public void update(MarketData data) throws Exception {
-        try {
-            lock.lock();
-            rateLimiter.queue(() -> {
-                synchronized (this) {
-                    count++;
-                }
-                return null;
-            });
-        } finally {
-            lock.unlock();
-        }
+        rateLimiter.queue(() -> {
+            try {
+                writeLock.lock();
+                count++;
+                Thread.sleep(500);
+            } finally {
+                writeLock.unlock();
+            }
+            return null;
+        });
     }
 
     public int getCount() {
         try{
-            lock.lock();
+            readLock.lock();
             return count;
         } finally {
-            lock.unlock();
+            readLock.unlock();
         }
     }
 }
@@ -53,7 +54,7 @@ public class MarketDataProcessor {
         return rateLimiter.queue(() -> {
             DataAggregator aggregator = db.computeIfAbsent(data.getSymbol(), k -> new DataAggregator());
             return aggregator.getCount();
-        });
+        }).get();
     }
 
     public void await() throws InterruptedException {

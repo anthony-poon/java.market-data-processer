@@ -14,7 +14,7 @@ class RateLimiter<V>  {
         this.timeFrame = timeFrame;
     }
 
-    public V queue(Callable<V> task) throws Exception {
+    public Future<V> queue(Callable<V> task) throws Exception {
         if (timestamps.size() > 0 && timestamps.size() >= maxJobCount) {
             long timestamp = timestamps.poll();
             long timeDiff = System.currentTimeMillis() - timestamp;
@@ -23,6 +23,6 @@ class RateLimiter<V>  {
             }
         }
         timestamps.add(System.currentTimeMillis());
-        return executors.submit(task).get();
+        return executors.submit(task);
     }
 }
