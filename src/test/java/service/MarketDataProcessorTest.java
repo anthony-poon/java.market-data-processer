@@ -16,12 +16,16 @@ public class MarketDataProcessorTest {
         MarketDataProcessor processor = new MarketDataProcessor();
         MarketData data = new MarketData();
         data.setSymbol("ABC");
+        data.setAsk(10);
         processor.onMessage(data);
+        data.setAsk(20);
         processor.onMessage(data);
+        data.setAsk(30);
         processor.onMessage(data);
+        data.setAsk(40);
         processor.onMessage(data);
-        int count = processor.publishAggregatedMarketData(data);
-        Assertions.assertEquals(4, count);
+        MarketData aggregated = processor.onPublish("ABC");
+        Assertions.assertEquals(40, aggregated.getAsk());
     }
 
     @Test
@@ -29,25 +33,24 @@ public class MarketDataProcessorTest {
         MarketDataProcessor processor = new MarketDataProcessor();
         MarketData data = new MarketData();
         data.setSymbol("ABC");
+        data.setAsk(10);
         processor.onMessage(data);
+        data.setAsk(20);
         processor.onMessage(data);
+        data.setAsk(30);
         processor.onMessage(data);
+        data.setAsk(40);
         processor.onMessage(data);
-        int count = processor.publishAggregatedMarketData(data);
-        Assertions.assertEquals(4, count);
-        count = processor.publishAggregatedMarketData(data);
-        Assertions.assertEquals(4, count);
-        processor.onMessage(data);
-        processor.onMessage(data);
-        count = processor.publishAggregatedMarketData(data);
-        Assertions.assertEquals(6, count);
+
+        MarketData assert1 = processor.onPublish("ABC");
+        Assertions.assertEquals(40, assert1.getAsk());
     }
 
-    @Test
-    public void testCanPublishNothing() throws Exception {
-        MarketDataProcessor processor = new MarketDataProcessor();
-        MarketData data = new MarketData();
-        data.setSymbol("ABC");
-        Assertions.assertEquals(0, processor.publishAggregatedMarketData(data));
-    }
+//    @Test
+//    public void testCanPublishNothing() throws Exception {
+//        MarketDataProcessor processor = new MarketDataProcessor();
+//        MarketData data = new MarketData();
+//        data.setSymbol("ABC");
+//        Assertions.assertEquals(0, processor.publishAggregatedMarketData(data));
+//    }
 }

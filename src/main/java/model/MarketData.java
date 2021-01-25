@@ -11,4 +11,11 @@ public class MarketData {
     private long ask;
     private long last;
     private LocalDateTime updateTime;
+
+    public synchronized void aggregate(MarketData data) {
+        this.bid = data.getBid();
+        this.ask = data.getAsk();
+        this.last = data.getLast();
+        this.updateTime = data.getUpdateTime();
+    }
 }

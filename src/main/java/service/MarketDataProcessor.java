@@ -11,7 +11,7 @@ public class MarketDataProcessor {
     private final Logger logger = Logger.getLogger(MarketDataProcessor.class.getName());
     private final Map<String, DataAggregator> db = new ConcurrentHashMap<>();
     private final ExecutorService executor = Executors.newFixedThreadPool(5);
-    private final RateLimiter<Integer> rateLimiter = new RateLimiter<>(100, 1000);
+    private final RateLimiter<MarketData> rateLimiter = new RateLimiter<>(100, 1000);
 
     public void onMessage(MarketData data) {
         executor.submit(() -> {
@@ -21,11 +21,14 @@ public class MarketDataProcessor {
         });
     }
 
-    public int publishAggregatedMarketData(MarketData data) throws Exception {
+    public MarketData onPublish(String symbol) throws Exception {
         return rateLimiter.queue(() -> {
-            DataAggregator aggregator = db.computeIfAbsent(data.getSymbol(), k -> new DataAggregator());
-            return aggregator.getCount();
+            DataAggregator aggregator = db.computeIfAbsent(symbol, k -> new DataAggregator());
+            return aggregator.getData();
         }).get();
+    }
+
+    public void publishAggregatedMarketData(MarketData data) {
     }
 
     public void await() throws InterruptedException {
