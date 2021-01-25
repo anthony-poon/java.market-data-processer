@@ -28,7 +28,7 @@ class DataAggregator {
             if (queueSize.decrementAndGet() == 0) {
                 try {
                     lock.tryLock();
-                    isEmpty.signal();
+                    isEmpty.signalAll();
                 } finally {
                     lock.unlock();
                 }
